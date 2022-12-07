@@ -44,8 +44,7 @@ r_n = Dice.input_data(True, 'Количество бросков: ') # Коли�
 
 #************************* Вывод информации о кубиках **************************
 print('Количестов кубиков: {}'.format(dice_numbers))
-print('Количестов граней: {}'.format(dice_sides[0]))
-print('Количестов бросков: {}'.format(r_n))
+print('Количестов граней: {}'.format(dice_sides))
 #*******************************************************************************
 
 #******* Создание списка объектов класса по количеству брощенных кубиков *******
@@ -55,35 +54,32 @@ for d_c in range(dice_numbers):
 
 
 #********* Рассчет результатов бросков и частоты выпадения результатов *********
-if len(dice) > 1:
-    print(len(dice))
-    for index in range(1, len(dice)):    
-        for roll_num in range(r_n):
+if len(dice) > 1:      
+    for roll_num in range(r_n):
+        for index in range(dice_numbers):
             result = dice[index-1].roll() + dice[index].roll()
-            results += [result]
-    print(results)
+        results += [result]
+    print(f'Список результатов бросков: {results}')
 
-    max_result=0
-    for index in range(1, len(dice)):
-        max_result = dice[index-1].num_sides + dice[index].num_sides
-    print(max_result)
+    max_result = dice[0].num_sides
+    for index in range(1, dice_numbers):
+        max_result += dice[index].num_sides
+    print(f'Максимальный результат броска: {max_result}')
 
-    for index in range(1, len(dice)):
-        for value in range(dice_numbers, max_result + 1):
-            frequency = results.count(value)
-            frequencies += [frequency]
-    print(frequencies,
-          f'\n{len(frequencies)}')
+    for value in range(dice_numbers, max_result + 1):
+        frequency = results.count(value)
+        frequencies += [frequency]
+    print(f'Частота выпадения значения на кубиках: {frequencies}')
 else:   
     for roll_num in range(r_n):
         result = dice[0].roll()
         results += [result]
-    print(results)
+    print(f'Список результатов бросков: {results}')
 
     for value in range(1, dice_sides[0] + 1):
         frequency = results.count(value)
         frequencies += [frequency]
-    print(frequencies)
+    print(f'Частота выпадения значения на кубике: {frequencies}')
 #*******************************************************************************
 
 #***************************** Создание svg файла ******************************
@@ -94,14 +90,15 @@ hist.title += "\n n = {}; m = {}".format(r_n, dice_numbers)
 #----------------- Отрисовка гистограммы результатов бросков -------------------
 if dice_numbers > 1:
     if approval == 'y':
-        for count in range(dice_numbers):
+        for count in range(1, dice_numbers):
             maxresult = dice_numbers*dice_sides[count] - 1
-            hist.x_labels = list(range(dice_numbers, maxresult))
+        hist.x_labels = list(range(dice_numbers, maxresult))
     else:
         maxresult = dice_numbers*dice_sides[0] + 1
         hist.x_labels = list(range(dice_numbers, maxresult))
 else:
-    hist.x_labels = list(range(dice_numbers, (dice_numbers*dice_sides[0]) + 1))
+    maxresult = dice_numbers*dice_sides[0] + 1
+    hist.x_labels = list(range(1, dice_sides[0] + 1))
 #-------------------------------------------------------------------------------
 
 hist.x_title = 'Результы'
