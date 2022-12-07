@@ -10,7 +10,8 @@ dice_sides = []
 frequencies = []
 approval_input = False
 
-dice_numbers = Dice.input_data(True, 'Количество кубиков: ') # Ввод количества кубиков
+dice_numbers = Dice.input_data(True, 'Количество кубиков: ') # Ввод количества 
+                                                             #кубиков
 
 #*************** Ввод граней в зависимости от количества кубиков ***************
 if dice_numbers > 1:  
