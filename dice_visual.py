@@ -1,3 +1,5 @@
+import os
+import time
 import pygal
 
 from dice import Dice
@@ -6,50 +8,71 @@ dice = []
 results = []
 dice_sides = []
 frequencies = []
+approval_input = False
 
-dice_numbers = 5#Dice.input_data(True, 'Количество кубиков: ')
-if dice_numbers > 1:
-    approval = 'n'#input('Количество граней кубика разные? (y/n)')
+dice_numbers = Dice.input_data(True, 'Количество кубиков: ') # Ввод количества кубиков
+
+#*************** Ввод граней в зависимости от количества кубиков ***************
+if dice_numbers > 1:  
+    #------------------- Проверка правильности ввода ответа --------------------
+    while approval_input == False:
+        approval = input('Количество граней кубика разные? (y/n)\n')
+        if approval == 'y' or approval == 'n':
+            approval_input = True
+        else:
+            print('Вы дали неверный ответ.')
+            time.sleep(1)
+            clear = lambda: os.system('cls')
+            clear()
+    #---------------------------------------------------------------------------
+    #----- Ввод количества граней в зависимости от различия граней кубиков -----
     if approval == 'y':
         for count in range(dice_numbers):
             dice_sides += [Dice.input_data(False, 'Количество граней: ')]
     else:
-        side = 6 #Dice.input_data(False, 'Количество граней: ')
+        side = Dice.input_data(False, 'Количество граней: ')
         for count in range(dice_numbers):
             dice_sides += [side]
+    #---------------------------------------------------------------------------
 else:
     dice_sides += [Dice.input_data(False, 'Количество граней: ')]
-r_n = 100 #Dice.input_data(True, 'Количество бросков: ')
+#*******************************************************************************
 
+r_n = Dice.input_data(True, 'Количество бросков: ') # Количество бросков каждого
+                                                    # кубика
 
-
+#************************* Вывод информации о кубиках **************************
 print('Количестов кубиков: {}'.format(dice_numbers))
-print('Количестов граней: {}'.format(dice_sides))
+print('Количестов граней: {}'.format(dice_sides[0]))
 print('Количестов бросков: {}'.format(r_n))
+#*******************************************************************************
 
-
-
+#******* Создание списка объектов класса по количеству брощенных кубиков *******
 for d_c in range(dice_numbers):
     dice += [Dice(dice_sides[d_c])]
+#*******************************************************************************
 
 
-
+#********* Рассчет результатов бросков и частоты выпадения результатов *********
 if len(dice) > 1:
+    print(len(dice))
     for index in range(1, len(dice)):    
         for roll_num in range(r_n):
             result = dice[index-1].roll() + dice[index].roll()
             results += [result]
     print(results)
 
+    max_result=0
     for index in range(1, len(dice)):
         max_result = dice[index-1].num_sides + dice[index].num_sides
     print(max_result)
 
     for index in range(1, len(dice)):
-        for value in range(dice_numbers, max_result):
+        for value in range(dice_numbers, max_result + 1):
             frequency = results.count(value)
             frequencies += [frequency]
-    print(frequencies, 'Mnogo')
+    print(frequencies,
+          f'\n{len(frequencies)}')
 else:   
     for roll_num in range(r_n):
         result = dice[0].roll()
@@ -59,24 +82,29 @@ else:
     for value in range(1, dice_sides[0] + 1):
         frequency = results.count(value)
         frequencies += [frequency]
-    print(frequencies, 'Malo')
+    print(frequencies)
+#*******************************************************************************
 
-
-
+#***************************** Создание svg файла ******************************
 hist = pygal.Bar()
 hist.title = "Резульаты n бросков m куба/ов d{}".format(dice_sides)
 hist.title += "\n n = {}; m = {}".format(r_n, dice_numbers)
+
+#----------------- Отрисовка гистограммы результатов бросков -------------------
 if dice_numbers > 1:
     if approval == 'y':
         for count in range(dice_numbers):
-            maxresult = dice_numbers*dice_sides[count]
+            maxresult = dice_numbers*dice_sides[count] - 1
             hist.x_labels = list(range(dice_numbers, maxresult))
     else:
         maxresult = dice_numbers*dice_sides[0] + 1
         hist.x_labels = list(range(dice_numbers, maxresult))
 else:
     hist.x_labels = list(range(dice_numbers, (dice_numbers*dice_sides[0]) + 1))
+#-------------------------------------------------------------------------------
+
 hist.x_title = 'Результы'
 hist.y_title = 'Частота результатов'
 hist.add('d{}'.format(dice_sides), frequencies)
 hist.render_to_file('dice_visual.svg')
+#*******************************************************************************
